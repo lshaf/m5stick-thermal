@@ -220,160 +220,171 @@ void recvTask(void*)
 
   uint32_t freq_i2c_default = 400000;
   uint32_t freq_i2c_read = 921600;
-
-  size_t i2c_error_count = 0;
   for (;;)
   {
     StickCP2.update();
 
+    // bool reader = StickCP2.Ex_I2C.readRegister(i2c_addr, 0x00, register_data, sizeof(register_data), freq_i2c_default);
+    // Serial.println(reader ? "I2C Read OK" : "I2C Read Failed");
+    // if (reader) {
+    //   StickCP2.Ex_I2C.writeRegister8(i2c_addr, 0x15, 0x01, freq_i2c_default);
+    //   StickCP2.Ex_I2C.writeRegister8(i2c_addr, 0x16, 0x0F, freq_i2c_default);
+    //   StickCP2.Ex_I2C.writeRegister8(i2c_addr, 0x17, 0xFF, freq_i2c_default);
+    //   // print register_data if register_data changed
+    //   for (size_t i = 0; i < sizeof(register_data); ++i)
+    //   {
+    //     Serial.printf("%02X ", register_data[i]);
+    //     if ((i & 15) == 15) Serial.println();
+    //   }
+    // }
     if (!StickCP2.Ex_I2C.readRegister(i2c_addr, 0x00, register_data, sizeof(register_data), 400000) || StickCP2.BtnA.wasClicked())
     {
-      memset(check_list, check_state_t::unknown, sizeof(check_list));
-      check_list[check_list_t::button_click] = check_state_t::progress;
-      test_step = test_button_click;
-      step_counter = 0;
-      StickCP2.Ex_I2C.writeRegister(i2c_addr, 0, reg_default, sizeof(reg_default), freq_i2c_default);
-    } else
-    if (register_data[0x00]) {
-      StickCP2.Ex_I2C.writeRegister8(i2c_addr, 0, register_data[0x00], freq_i2c_default);
-    }
+      // memset(check_list, check_state_t::unknown, sizeof(check_list));
+      // check_list[check_list_t::button_click] = check_state_t::progress;
+      // test_step = test_button_click;
+      // step_counter = 0;
+      // StickCP2.Ex_I2C.writeRegister(i2c_addr, 0, reg_default, sizeof(reg_default), freq_i2c_default);
+    } 
+    // else if (register_data[0x00]) {
+    //   StickCP2.Ex_I2C.writeRegister8(i2c_addr, 0, register_data[0x00], freq_i2c_default);
+    // }
 
-    switch (test_step)
-    {
-    case test_button_click:
-      if (register_data[0x00]) {
-        auto rd = register_data[0x00];
-        if (rd & 8) {
-          check_list[check_list_t::button_click] = check_state_t::success;
+    // switch (test_step)
+    // {
+    // case test_button_click:
+    //   if (register_data[0x00]) {
+    //     auto rd = register_data[0x00];
+    //     if (rd & 8) {
+    //       check_list[check_list_t::button_click] = check_state_t::success;
 
-          check_list[check_list_t::refresh_64Hz] = check_state_t::progress;
-          test_step = test_refresh_rate_64Hz;
-          step_counter = 0;
+    //       check_list[check_list_t::refresh_64Hz] = check_state_t::progress;
+    //       test_step = test_refresh_rate_64Hz;
+    //       step_counter = 0;
 
-          StickCP2.Ex_I2C.writeRegister(i2c_addr, 0x08, cmd, sizeof(cmd), 400000);
-          freq_i2c_read = 921600;
-        }
-      }
-      break;
+    //       StickCP2.Ex_I2C.writeRegister(i2c_addr, 0x08, cmd, sizeof(cmd), 400000);
+    //       freq_i2c_read = 921600;
+    //     }
+    //   }
+    //   break;
 
-    case test_refresh_rate_64Hz:
-      if (++step_counter > 8192)
-      {
-        check_list[check_list_t::refresh_64Hz] = check_state_t::failed;
-        test_step = test_button_click;
-        break;
-      }
-      else if (fps >= 55 && fps <= 64) {
-        check_list[check_list_t::refresh_64Hz] = check_state_t::success;
+    // case test_refresh_rate_64Hz:
+    //   if (++step_counter > 8192)
+    //   {
+    //     check_list[check_list_t::refresh_64Hz] = check_state_t::failed;
+    //     test_step = test_button_click;
+    //     break;
+    //   }
+    //   else if (fps >= 55 && fps <= 64) {
+    //     check_list[check_list_t::refresh_64Hz] = check_state_t::success;
 
-        check_list[check_list_t::refresh_32Hz] = check_state_t::progress;
-        test_step = test_refresh_rate_32Hz;
-        StickCP2.Ex_I2C.writeRegister8(i2c_addr, THERMAL2_REG_REFRESH_RATE, 6, freq_i2c_default);
-        step_counter = 0;
-        freq_i2c_read = 400000;
-      }
-      break;
+    //     check_list[check_list_t::refresh_32Hz] = check_state_t::progress;
+    //     test_step = test_refresh_rate_32Hz;
+    //     StickCP2.Ex_I2C.writeRegister8(i2c_addr, THERMAL2_REG_REFRESH_RATE, 6, freq_i2c_default);
+    //     step_counter = 0;
+    //     freq_i2c_read = 400000;
+    //   }
+    //   break;
 
-    case test_refresh_rate_32Hz:
-      if (++step_counter > 8192)
-      {
-        check_list[check_list_t::refresh_32Hz] = check_state_t::failed;
-        test_step = test_button_click;
-        break;
-      }
-      else if (fps >= 31 && fps <= 32) {
-        check_list[check_list_t::refresh_32Hz] = check_state_t::success;
+    // case test_refresh_rate_32Hz:
+    //   if (++step_counter > 8192)
+    //   {
+    //     check_list[check_list_t::refresh_32Hz] = check_state_t::failed;
+    //     test_step = test_button_click;
+    //     break;
+    //   }
+    //   else if (fps >= 31 && fps <= 32) {
+    //     check_list[check_list_t::refresh_32Hz] = check_state_t::success;
 
-        check_list[check_list_t::refresh_16Hz] = check_state_t::progress;
-        test_step = test_refresh_rate_16Hz;
-        StickCP2.Ex_I2C.writeRegister8(i2c_addr, THERMAL2_REG_REFRESH_RATE, 5, freq_i2c_default);
-        step_counter = 0;
-      }
-      break;
+    //     check_list[check_list_t::refresh_16Hz] = check_state_t::progress;
+    //     test_step = test_refresh_rate_16Hz;
+    //     StickCP2.Ex_I2C.writeRegister8(i2c_addr, THERMAL2_REG_REFRESH_RATE, 5, freq_i2c_default);
+    //     step_counter = 0;
+    //   }
+    //   break;
 
-    case test_refresh_rate_16Hz:
-      if (++step_counter > 8192)
-      {
-        check_list[check_list_t::refresh_16Hz] = check_state_t::failed;
-        test_step = test_button_click;
-        break;
-      }
-      else if (fps >= 15 && fps <= 16) {
-        check_list[check_list_t::refresh_16Hz] = check_state_t::success;
+    // case test_refresh_rate_16Hz:
+    //   if (++step_counter > 8192)
+    //   {
+    //     check_list[check_list_t::refresh_16Hz] = check_state_t::failed;
+    //     test_step = test_button_click;
+    //     break;
+    //   }
+    //   else if (fps >= 15 && fps <= 16) {
+    //     check_list[check_list_t::refresh_16Hz] = check_state_t::success;
 
-        check_list[check_list_t::buzzer_led] = check_state_t::progress;
-        test_step = test_buzzer_led;
-        step_counter = 0;
-        StickCP2.Ex_I2C.writeRegister8(i2c_addr, THERMAL2_REG_FUNCTION_CTRL, 7, freq_i2c_default);
-      }
-      break;
+    //     check_list[check_list_t::buzzer_led] = check_state_t::progress;
+    //     test_step = test_buzzer_led;
+    //     step_counter = 0;
+    //     StickCP2.Ex_I2C.writeRegister8(i2c_addr, THERMAL2_REG_FUNCTION_CTRL, 7, freq_i2c_default);
+    //   }
+    //   break;
 
-    case test_buzzer_led:
-      if ((step_counter++ & 63) == 0)
-      {
-        uint8_t reg_0x12[6] = { 0 };
-        auto s = step_counter >> 6;
-        uint_fast16_t freq = 4000 + (s * 200);
-        reg_0x12[0] = (uint8_t)freq;
-        reg_0x12[1] = (uint8_t)(freq >> 8);
-        reg_0x12[2] = 0;
-        if (s == 10) {
-          step_counter = 0;
-          check_list[check_list_t::buzzer_led] = check_state_t::success;
+    // case test_buzzer_led:
+    //   if ((step_counter++ & 63) == 0)
+    //   {
+    //     uint8_t reg_0x12[6] = { 0 };
+    //     auto s = step_counter >> 6;
+    //     uint_fast16_t freq = 4000 + (s * 200);
+    //     reg_0x12[0] = (uint8_t)freq;
+    //     reg_0x12[1] = (uint8_t)(freq >> 8);
+    //     reg_0x12[2] = 0;
+    //     if (s == 10) {
+    //       step_counter = 0;
+    //       check_list[check_list_t::buzzer_led] = check_state_t::success;
 
-          check_list[check_list_t::register_write] = check_state_t::progress;
-          test_step = test_register_write;
-        } else {
-          switch (s % 5) {
-          default:
-          case 0:
-            reg_0x12[3] = 7;
-            break;
+    //       check_list[check_list_t::register_write] = check_state_t::progress;
+    //       test_step = test_register_write;
+    //     } else {
+    //       switch (s % 5) {
+    //       default:
+    //       case 0:
+    //         reg_0x12[3] = 7;
+    //         break;
 
-          case 1:
-            reg_0x12[4] = 7;
-            break;
+    //       case 1:
+    //         reg_0x12[4] = 7;
+    //         break;
 
-          case 2:
-            reg_0x12[5] = 7;
-            break;
+    //       case 2:
+    //         reg_0x12[5] = 7;
+    //         break;
 
-          case 3:
-            reg_0x12[3] = 4;
-            reg_0x12[4] = 4;
-            reg_0x12[5] = 4;
-            break;
+    //       case 3:
+    //         reg_0x12[3] = 4;
+    //         reg_0x12[4] = 4;
+    //         reg_0x12[5] = 4;
+    //         break;
 
-          case 4:
-            break;
-          }
-        }
-        StickCP2.Ex_I2C.writeRegister(i2c_addr, 0x12, reg_0x12, sizeof(reg_0x12), freq_i2c_default);
-      }
-      else {
-        uint8_t reg_0x14 = ((step_counter-1) & 63) * 4;
-        StickCP2.Ex_I2C.writeRegister8(i2c_addr, 0x14, reg_0x14, freq_i2c_default);
-      }
-      break;
+    //       case 4:
+    //         break;
+    //       }
+    //     }
+    //     StickCP2.Ex_I2C.writeRegister(i2c_addr, 0x12, reg_0x12, sizeof(reg_0x12), freq_i2c_default);
+    //   }
+    //   else {
+    //     uint8_t reg_0x14 = ((step_counter-1) & 63) * 4;
+    //     StickCP2.Ex_I2C.writeRegister8(i2c_addr, 0x14, reg_0x14, freq_i2c_default);
+    //   }
+    //   break;
 
-    case test_register_write:
-      if (step_counter++) {
-        if (memcmp(register_data, reg_default, sizeof(reg_default))) {
-          check_list[check_list_t::register_write] = check_state_t::failed;
-          test_step = test_button_click;
-          break;
-        } else if (step_counter > 10) {
-          check_list[check_list_t::register_write] = check_state_t::success;
-          test_step = test_button_click;
-          break;
-        }
-      }
-      StickCP2.Ex_I2C.writeRegister(i2c_addr, 0, reg_default, sizeof(reg_default), freq_i2c_default);
-      break;
+    // case test_register_write:
+    //   if (step_counter++) {
+    //     if (memcmp(register_data, reg_default, sizeof(reg_default))) {
+    //       check_list[check_list_t::register_write] = check_state_t::failed;
+    //       test_step = test_button_click;
+    //       break;
+    //     } else if (step_counter > 10) {
+    //       check_list[check_list_t::register_write] = check_state_t::success;
+    //       test_step = test_button_click;
+    //       break;
+    //     }
+    //   }
+    //   StickCP2.Ex_I2C.writeRegister(i2c_addr, 0, reg_default, sizeof(reg_default), freq_i2c_default);
+    //   break;
 
-    default:
-      break;
-    }
+    // default:
+    //   break;
+    // }
 
     uint8_t send_data[2] = { THERMAL2_REG_REFRESH_CTRL, 2 };
     if (StickCP2.Ex_I2C.start(i2c_addr, false, freq_i2c_default)
@@ -539,11 +550,20 @@ void drawThermalImage() {
     }
   }
 
-  StickCP2.Display.setTextColor(0xFFFFFF, 0x000000);
-  StickCP2.Display.setCursor(5, 105);
-  StickCP2.Display.printf("Min %.1fC", minC);
-  StickCP2.Display.setCursor(5, 113);
-  StickCP2.Display.printf("Max %.1fC", maxC);
+  StickCP2.Display.setTextSize(2);
+  StickCP2.Display.setTextColor(TFT_SKYBLUE, TFT_BLACK);
+  String minStr = String(minC, 1) + "C";
+  StickCP2.Display.drawString(minStr, 5, 105);
+  StickCP2.Display.setTextColor(TFT_RED, TFT_BLACK);
+  String maxStr = String(maxC, 1) + "C";
+  StickCP2.Display.drawRightString(maxStr, StickCP2.Display.width() - 2, 105);
+  
+  // print battery voltage
+  int32_t level = StickCP2.Power.getBatteryLevel();
+  StickCP2.Display.setTextColor(TFT_WHITE, TFT_BLACK);
+  StickCP2.Display.setTextSize(1);
+  StickCP2.Display.setCursor(5, StickCP2.Display.height() - StickCP2.Display.fontHeight() - 5);
+  StickCP2.Display.printf("Battery: %d%%", level);
 }
 
 void drawCheck()
@@ -558,7 +578,7 @@ void drawCheck()
     uint_fast8_t val = check_list[i];
     check_prev[i] = val;
     int y = i;
-    StickCP2.Display.setCursor( 5 , y * fh + 121);
+    StickCP2.Display.setCursor( 5 , y * fh + 126);
 
     switch (val) {
     default:
@@ -584,15 +604,15 @@ void drawCheck()
 }
 
 void loop() {
-  StickCP2.update();  // Back to StickCP2
+  // StickCP2.update();  // Back to StickCP2
 
-  if (StickCP2.BtnA.wasPressed()) {  // Back to StickCP2
-    Serial.println("Button A pressed!");
-  }
+  // if (StickCP2.BtnA.wasPressed()) {  // Back to StickCP2
+  //   Serial.println("Button A pressed!");
+  // }
   
-  if (StickCP2.BtnB.wasPressed()) {  // Back to StickCP2
-    Serial.println("Button B pressed!");
-  }
+  // if (StickCP2.BtnB.wasPressed()) {  // Back to StickCP2
+  //   Serial.println("Button B pressed!");
+  // }
 
   drawCheck();
   drawThermalImage();
